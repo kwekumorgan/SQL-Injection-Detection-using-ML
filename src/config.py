@@ -14,14 +14,19 @@ METRICS_DIR = os.path.join(BASE_DIR, "metrics")
 SQLIV3_RAW_PATH = os.path.join(RAW_DATA_DIR, "SQLiV3.csv")
 BCCC_RAW_PATH = os.path.join(RAW_DATA_DIR, "BCCC-SFU-SQLInj-2023.csv")
 
-
+#interim output
+NATIVE_OBFUSCATED_PATH = os.path.join(INTERIM_DATA_DIR, "sqliv3_native_obfuscated.csv")
 MERGED_PATH = os.path.join(INTERIM_DATA_DIR, "merged_raw.csv")
 CLEANED_PATH = os.path.join(INTERIM_DATA_DIR, "cleaned.csv") 
 TAGGED_PATH = os.path.join(INTERIM_DATA_DIR, "tagged.csv")
 
-NORMALIZED_PATH = os.path.join(PROCESSED_DATA_DIR, "normalized.csv")
+
+#processed output 
+PREPROCESSED_PATH = os.path.join(PROCESSED_DATA_DIR, "preprocessed.csv")
 TRAIN_PATH = os.path.join(PROCESSED_DATA_DIR, "train.csv")
-TEST_PATH = os.path.join(PROCESSED_DATA_DIR, "test.csv")
+TEST_CLEAN_PATH = os.path.join(PROCESSED_DATA_DIR, "test_clean.csv")
+TEST_OBFUSCATED_PATH = os.path.join(PROCESSED_DATA_DIR, "test_obfuscated.csv")
+
 
 
 # HYPERPARAMETERS
@@ -36,12 +41,15 @@ TFIDF_NGRAM_RANGE = (1,3)
 TEST_SIZE = 0.2
 BCCC_SAMPLE_SIZE = 2500 # skeleton-deduplication sample, not full pool
 
+# feature selection — k-search candidates
+FEATURE_SELECTION_K_CANDIDATES = [100, 500, 1000, 2000]
+
 
 # OBFUSCATION DETECTION PATTERNS
 
 HEX_PATTERN = r"0x[0-9a-fA-F]+"
 URL_ENCODING_PATTERN = r"%[0-9a-fA-F]{2}"
-CHAR_FUNCTION_PATTERN = r"(?i)\bchr?\s*\(\s*\d+(?:\s*,\s*\d+)*\s*\)"
+CHAR_FUNCTION_PATTERN = r"\b(?i:cha?r)\s*\(\s*\d+(?:\s*,\s*\d+)*\s*\)"
 BLOCK_COMMENT_PATTERN = r"/\*[\s\S]*?\*/"
 
 #case-insensitivity to keywords only, not whole pattern
@@ -50,6 +58,16 @@ MIXED_CASE_PATTERN = (
     r"(?i:select|union|insert|update|delete|drop|and|or|where|from)\b"
 )
 
+
+# combined pattern for the SQLiV3 separation step
+NATIVE_OBFUSCATION_PATTERN = "|".join([
+    HEX_PATTERN, URL_ENCODING_PATTERN, CHAR_FUNCTION_PATTERN,
+    BLOCK_COMMENT_PATTERN, MIXED_CASE_PATTERN,
+])
+
+
+# BCCC-specific: used only to filter BCCC down to error-based rows
+BCCC_ERROR_PATTERN = r"(?i)(extractvalue|updatexml|floor\s*\(\s*rand|utl_inaddr|xmltype)"
 
 
 #ATTACK_TYPE PATTERN 
