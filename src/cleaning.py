@@ -72,3 +72,27 @@ def remove_duplicates(df):
   df = df.drop_duplicates(subset=["Sentence"])
   print(f"Dropped {before - len(df):,} exact duplicate rows")
   return df
+
+
+
+def clean_dataset():
+  # run the full cleaning pipeline in order
+  df = load_merged()
+  print(f"Loaded {len(df):,} rows from merged dataset")
+
+  df = handle_missing_values(df)
+  df = fix_label_encoding(df)
+  df = standardize_formatting(df)
+  df = remove_conflicting_labels(df)
+  df = remove_duplicates(df)
+
+  # reset index after dropping rows so it stays continuous
+  df = df.reset_index(drop=True)
+  print(f"Final cleaned dataset: {len(df):,} rows")
+
+  df.to_csv(config.CLEANED_PATH, index=False)
+  return df
+
+
+if __name__ == "__main__":
+  clean_dataset()
