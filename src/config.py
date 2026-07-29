@@ -13,6 +13,12 @@ METRICS_DIR = os.path.join(BASE_DIR, "metrics")
 
 SQLIV3_RAW_PATH = os.path.join(RAW_DATA_DIR, "SQLiV3.csv")
 BCCC_RAW_PATH = os.path.join(RAW_DATA_DIR, "BCCC-SFU-SQLInj-2023.csv")
+RBSQLI_RAW_PATH = os.path.join(RAW_DATA_DIR, "RbSQLi.csv")
+RBSQLI_CATEGORY_TARGETS = {
+    "error": 3500,
+    "time": 2300,
+    "union": 1400,
+}
 
 #interim output
 NATIVE_OBFUSCATED_PATH = os.path.join(INTERIM_DATA_DIR, "sqliv3_native_obfuscated.csv")
