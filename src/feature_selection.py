@@ -25,3 +25,12 @@ def top_k_indices(scores, k):
     return np.argsort(scores)[::-1][:k]
 
 
+# Evaluate mean CV accuracy for top-k features on CSC-formatted matrix.
+def evaluate_k(X_train_csc, y_train, scores, k):
+    # Slice columns using CSC matrix for fast indexing across iterations
+    indices = top_k_indices(scores, k)
+    X_subset = X_train_csc[:, indices]
+
+    model = LogisticRegression(max_iter=1000, random_state=config.RANDOM_STATE)
+    result = cross_val_score(model, X_subset, y_train, cv=5, scoring="accuracy")
+    return result.mean()
