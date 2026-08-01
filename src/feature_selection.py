@@ -62,3 +62,30 @@ def fine_search(X_train_csc, y_train, scores, best_coarse_k, window=200):
 
     best_k = max(results, key=results.get)
     return best_k, results
+
+
+
+
+# Execute two-stage search pipeline to find optimal feature count k.
+def select_optimal_k(X_train, y_train, scores, max_k):
+    # Enforce sparse input matrix requirement
+    if not hasattr(X_train, "tocsc"):
+        raise TypeError(
+            f"X_train must be a scipy sparse matrix (e.g. from TfidfVectorizer), "
+            f"got {type(X_train).__name__} instead."
+        )
+
+    # Convert to CSC once for efficient column slicing
+    X_train_csc = X_train.tocsc()
+
+    print("Running coarse search...")
+    coarse_best, coarse_results = coarse_search(X_train_csc, y_train, scores, max_k)
+    print(f"Coarse search best k: {coarse_best:,}")
+
+    print("Running fine search...")
+    fine_best, fine_results = fine_search(X_train_csc, y_train, scores, coarse_best)
+    print(f"Fine search best k: {fine_best:,}")
+
+    return fine_best
+
+
