@@ -82,3 +82,39 @@ def train_all_models(X_train, y_train, conditions):
 
 
 
+# Persists all 15 trained model files, the fitted vectorizer object,
+# and selected feature indices mapping into the target models directory.
+def save_models(trained_models, vectorizer, conditions):
+    os.makedirs(config.MODELS_DIR, exist_ok=True)
+
+    # Export fitted classifiers individually
+    for name, model in trained_models.items():
+        path = os.path.join(config.MODELS_DIR, f"{name}.pkl")
+        joblib.dump(model, path)
+
+    # Export vectorizer and feature subset metadata needed for evaluation/testing
+    joblib.dump(vectorizer, os.path.join(config.MODELS_DIR, "vectorizer.pkl"))
+    joblib.dump(conditions, os.path.join(config.MODELS_DIR, "feature_conditions.pkl"))
+
+    print(f"\nSaved {len(trained_models)} models, vectorizer, and feature conditions to {config.MODELS_DIR}")
+
+
+# Pipeline entrypoint: loads training data, extracts features, calculates selection
+# conditions, fits all classifiers, and saves generated artifacts.
+def run_training():
+    train_df = pd.read_csv(config.TRAIN_PATH)
+    y_train = train_df["Label"]
+
+    vectorizer = build_vectorizer()
+    X_train = fit_transform_train(vectorizer, train_df)
+
+    conditions = build_feature_conditions(X_train, y_train)
+    trained_models = train_all_models(X_train, y_train, conditions)
+    save_models(trained_models, vectorizer, conditions)
+
+    return trained_models, vectorizer, conditions
+
+
+# Allow script execution directly from terminal/command line
+if __name__ == "__main__":
+    run_training()
