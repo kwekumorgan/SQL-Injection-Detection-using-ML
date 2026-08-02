@@ -59,3 +59,26 @@ def apply_condition(X_csc, indices):
     if indices is None:
         return X_csc
     return X_csc[:, indices]
+
+
+
+# Converts feature matrix to CSC format once for fast column slicing,
+# then trains all 5 classifiers across each of the 3 feature conditions (15 models total).
+def train_all_models(X_train, y_train, conditions):
+    trained = {}
+    X_train_csc = X_train.tocsc()  # Optimized sparse format for column-wise operations
+
+    for condition_name, indices in conditions.items():
+        X_condition = apply_condition(X_train_csc, indices)
+        print(f"\nTraining condition: {condition_name} ({X_condition.shape[1]:,} features)")
+
+        # Iterate over fresh model instances to avoid reusing fitted models
+        for model_name, model in get_models().items():
+            print(f"   Fitting {model_name}...")
+            model.fit(X_condition, y_train)
+            trained[f"{model_name}_{condition_name}"] = model
+
+    return trained
+
+
+
