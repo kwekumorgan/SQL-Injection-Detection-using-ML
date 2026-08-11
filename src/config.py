@@ -12,8 +12,11 @@ MODELS_DIR= os.path.join(BASE_DIR, "models")
 METRICS_DIR = os.path.join(BASE_DIR, "metrics")
 
 SQLIV3_RAW_PATH = os.path.join(RAW_DATA_DIR, "SQLiV3.csv")
+SQLIV_RAW_PATH = os.path.join(RAW_DATA_DIR, "sqli.csv")
+MALICIOUS_RAW_PATH = os.path.join(RAW_DATA_DIR, "synthetic_malicious_only.csv")
 BCCC_RAW_PATH = os.path.join(RAW_DATA_DIR, "BCCC-SFU-SQLInj-2023.csv")
-RBSQLI_RAW_PATH = os.path.join(RAW_DATA_DIR, "RbSQLi.csv")
+RBSQLI_RAW_PATH = os.path.join(RAW_DATA_DIR, "rbsqli_dataset.csv")
+DATA_SHEET_1_PATH = os.path.join(RAW_DATA_DIR, "data sheet 1.csv")
 RBSQLI_CATEGORY_TARGETS = {
     "error": 3500,
     "time": 2300,
@@ -37,18 +40,18 @@ TEST_OBFUSCATED_PATH = os.path.join(PROCESSED_DATA_DIR, "test_obfuscated.csv")
 
 # HYPERPARAMETERS
 
-RANDOM_STATE = 42
-
-#TF-IDF: word-level with symbol tokens preserved(eg. '=', '--')
-TFIDF_MAX_FEATURES= 5000
-TFIDF_TOKEN_PATTERN = r"\w+|[^\w\s]"
-TFIDF_NGRAM_RANGE = (1,3)
-
+RANDOM_STATE = 350
 TEST_SIZE = 0.2
 BCCC_SAMPLE_SIZE = 2500 # skeleton-deduplication sample, not full pool
 
-# feature selection — k-search candidates
-FEATURE_SELECTION_K_CANDIDATES = [100, 500, 1000, 2000]
+#TF-IDF: word-level with symbol tokens preserved(eg. '=', '--')
+TFIDF_MAX_FEATURES= None
+TFIDF_TOKEN_PATTERN = r"--|/\*|\*/|!=|<>|>=|<=|\|\||\w+|[^\w\s]"
+TFIDF_NGRAM_RANGE = (1,1)
+
+
+
+
 
 
 # OBFUSCATION DETECTION PATTERNS
@@ -76,17 +79,13 @@ NATIVE_OBFUSCATION_PATTERN = "|".join([
 BCCC_ERROR_PATTERN = r"(?i)(extractvalue|updatexml|floor\s*\(\s*rand|utl_inaddr|xmltype)"
 
 
-#ATTACK_TYPE PATTERN 
-
+# Attack type patterns used for categorization and stratification
 ATTACK_TYPE_PATTERNS = {
     "Tautology": r"(?i)(\d+\s*=\s*\d+|'\w+'\s*=\s*'\w+'|or\s+\d+\s*=\s*\d+)",
     "Comment": r"(--|#|/\*[\s\S]*?\*/)",
     "Boolean": r"(?i)\b(and|or)\b\s+[\w'\"]+\s*(=|<|>|like|between)",
     "Union": r"(?i)\bunion\b",
     "Time": r"(?i)(sleep\s*\(|waitfor\s+delay|pg_sleep\s*\(|benchmark\s*\()",
-    # Includes Oracle xmltype/utl_inaddr in addition to the original
-    # MySQL-only definition (extractvalue/updatexml/floor-rand), broadened
-    # to cover the BCCC source.
     "Error": r"(?i)(extractvalue|updatexml|floor\s*\(\s*rand|utl_inaddr|xmltype)",
     "Stacked": r";.{1,}(select|insert|update|delete|drop)",
 }
