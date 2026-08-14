@@ -16,7 +16,7 @@ SQLIV_RAW_PATH = os.path.join(RAW_DATA_DIR, "sqli.csv")
 MALICIOUS_RAW_PATH = os.path.join(RAW_DATA_DIR, "synthetic_malicious_only.csv")
 BCCC_RAW_PATH = os.path.join(RAW_DATA_DIR, "BCCC-SFU-SQLInj-2023.csv")
 RBSQLI_RAW_PATH = os.path.join(RAW_DATA_DIR, "rbsqli_dataset.csv")
-DATA_SHEET_1_PATH = os.path.join(RAW_DATA_DIR, "data sheet 1.csv")
+DATA_SHEET_1_PATH = os.path.join(RAW_DATA_DIR, "data_sheet_1.csv")
 RBSQLI_CATEGORY_TARGETS = {
     "error": 3500,
     "time": 2300,
