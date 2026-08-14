@@ -15,7 +15,7 @@ def load_merged():
 def handle_missing_values(df):
   # drop rows with a missing query or missing label
   before = len(df)
-  df = df.dropna(subset=["Sentence", "Label"])
+  df = df.dropna(subset=["Query", "Label"])
   print(f"Dropped {before - len(df):,} rows with missing values")
   return df
 
@@ -37,31 +37,31 @@ def fix_label_encoding(df):
 def standardize_formatting(df):
   # ensure query text is string type
   df = df.copy()
-  df["Sentence"] = df["Sentence"].astype(str)
+  df["Query"] = df["Query"].astype(str)
 
   # remove leading and trailing whitespace
-  df["Sentence"] = df["Sentence"].str.strip()
+  df["Query"] = df["Query"].str.strip()
 
   # collapse repeated inner whitespace into a single space
-  df["Sentence"] = df["Sentence"].str.replace(r"\s+", " ", regex=True)
+  df["Query"] = df["Query"].str.replace(r"\s+", " ", regex=True)
 
   # drop rows left empty after cleaning
   before = len(df)
-  df = df[df["Sentence"].str.len() > 0]
+  df = df[df["Query"].str.len() > 0]
   print(f"Dropped {before - len(df):,} rows with empty text")
   return df
 
 
 def remove_conflicting_labels(df):
   # count how many distinct labels each query appears under
-  label_counts = df.groupby("Sentence")["Label"].nunique()
+  label_counts = df.groupby("Query")["Label"].nunique()
 
   # identify queries that appear under more than one label
   conflicting_queries = label_counts[label_counts > 1].index
 
   # drop all rows for those queries, since the correct label is ambiguous
   before = len(df)
-  df = df[~df["Sentence"].isin(conflicting_queries)]
+  df = df[~df["Query"].isin(conflicting_queries)]
   print(f"Dropped {before - len(df):,} rows with conflicting labels")
   return df
 
@@ -69,7 +69,7 @@ def remove_conflicting_labels(df):
 def remove_duplicates(df):
   # remove exact duplicate rows, keeping the first occurrence
   before = len(df)
-  df = df.drop_duplicates(subset=["Sentence"])
+  df = df.drop_duplicates(subset=["Query"])
   print(f"Dropped {before - len(df):,} exact duplicate rows")
   return df
 
