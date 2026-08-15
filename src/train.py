@@ -17,6 +17,7 @@ from .feature_selection import (
     compute_mi_scores,
     select_optimal_k,
     top_k_indices,
+    smallest_k_within_tolerance,   # --- ADDED ---
 )
 
 
@@ -38,14 +39,20 @@ def build_feature_conditions(X_train, y_train):
     print("Computing Chi-square scores...")
     chi2_scores = compute_chi2_scores(X_train, y_train)
     print("Selecting optimal k for Chi-square...")
-    chi2_k = select_optimal_k(X_train, y_train, chi2_scores, max_k)
-    chi2_indices = top_k_indices(chi2_scores, chi2_k)
+    chi2_k, chi2_coarse, chi2_fine = select_optimal_k(X_train, y_train, chi2_scores, max_k)
+    # --- ADDED: use the smallest k within tolerance of the peak, instead of the raw peak k ---
+    efficient_chi2_k = smallest_k_within_tolerance(chi2_fine, tolerance=0.005)
+    print(f"Chi-square: raw best k={chi2_k:,}  ->  efficient k={efficient_chi2_k:,}")
+    chi2_indices = top_k_indices(chi2_scores, efficient_chi2_k)
 
     print("Computing Mutual Information scores...")
     mi_scores = compute_mi_scores(X_train, y_train)
     print("Selecting optimal k for Mutual Information...")
-    mi_k = select_optimal_k(X_train, y_train, mi_scores, max_k)
-    mi_indices = top_k_indices(mi_scores, mi_k)
+    mi_k, mi_coarse, mi_fine = select_optimal_k(X_train, y_train, mi_scores, max_k)
+    # --- ADDED: same tolerance logic for MI ---
+    efficient_mi_k = smallest_k_within_tolerance(mi_fine, tolerance=0.005)
+    print(f"Mutual Information: raw best k={mi_k:,}  ->  efficient k={efficient_mi_k:,}")
+    mi_indices = top_k_indices(mi_scores, efficient_mi_k)
 
     return {
         "baseline": None,
