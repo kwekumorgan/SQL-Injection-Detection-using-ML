@@ -37,6 +37,14 @@ def clean_non_sql_symbols(df):
   df["Query"] = df["Query"].str.replace(r"\s+", " ", regex=True).str.strip()
   return df
 
+def drop_empty_after_cleaning(df):
+  # symbol-stripping can reduce some rows (e.g. pure emoji/symbol text) to
+  # an empty string, which pandas reads back as NaN on the next CSV load
+  before = len(df)
+  df = df[df["Query"].str.len() > 0]
+  print(f"Dropped {before - len(df):,} rows left empty after symbol cleaning")
+  return df
+
 
 
 def preprocess_dataset():
@@ -46,6 +54,8 @@ def preprocess_dataset():
 
   df = lowercase_text(df)
   df = clean_non_sql_symbols(df)
+  df = drop_empty_after_cleaning(df)
+  df = df.reset_index(drop=True)
 
   df.to_csv(config.PREPROCESSED_PATH, index=False)
   print(f"Saved {len(df):,} preprocessed rows (non-SQL symbols removed, SQL operators preserved)")
