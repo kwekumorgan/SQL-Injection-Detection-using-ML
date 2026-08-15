@@ -7,7 +7,7 @@ from .data_acquisition import _skeleton
 
 
 # Calculate structural overlap between training and test set query skeletons.
-def check_leakage(train_df, test_df, text_col="Sentence"):
+def check_leakage(train_df, test_df, text_col="Query"):
     # Generate structural templates for training and test sets
     train_templates = set(train_df[text_col].apply(_skeleton))
     test_templates = test_df[text_col].apply(_skeleton)
