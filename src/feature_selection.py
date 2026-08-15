@@ -40,6 +40,7 @@ def evaluate_k(X_train_csc, y_train, scores, k, model=None):
     return result.mean()
 
 
+
 # Perform coarse grid search across candidate k values at step intervals.
 def coarse_search(X_train_csc, y_train, scores, max_k, step=50, model=None):
     step = min(step, max_k)  # Guard against vocabulary smaller than step size
@@ -96,3 +97,12 @@ def select_optimal_k(X_train, y_train, scores, max_k, model=None):
     print(f"Fine search best k: {fine_best:,}")
 
     return fine_best, coarse_results, fine_results
+
+# --- ADDED ---
+# Find the smallest k whose CV score is within `tolerance` of the best score
+# in the given results dict. Prevents picking an unnecessarily large k just
+# because it's marginally higher on noisy, near-plateau CV estimates.
+def smallest_k_within_tolerance(results, tolerance=0.005):
+    best_score = max(results.values())
+    candidates = [k for k, score in results.items() if score >= best_score - tolerance]
+    return min(candidates)
