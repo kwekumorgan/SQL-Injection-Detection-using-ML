@@ -21,18 +21,24 @@ def handle_missing_values(df):
 
 
 def fix_label_encoding(df):
-  # convert labels to numbers, turning invalid values into NaN
-  df = df.copy()
-  df["Label"] = pd.to_numeric(df["Label"], errors="coerce")
-   # drop rows where the label failed to convert
-  before = len(df)
-  df = df.dropna(subset=["Label"])
-  print(f"Dropped {before - len(df):,} rows with invalid label values")
+    # Convert labels to numeric values; invalid values become NaN
+    df = df.copy()
+    df["Label"] = pd.to_numeric(df["Label"], errors="coerce")
 
-  # cast to integer now that no missing values remain
-  df["Label"] = df["Label"].astype(int)
-  return df
+    # Remove rows where the label could not be converted
+    before = len(df)
+    df = df.dropna(subset=["Label"])
+    print(f"Dropped {before - len(df):,} rows with invalid label values")
 
+    # Convert valid numeric labels to integers
+    df["Label"] = df["Label"].astype(int)
+
+    # Keep only the two classes used in the binary SQLi experiment
+    before = len(df)
+    df = df[df["Label"].isin([0, 1])]
+    print(f"Dropped {before - len(df):,} rows with non-binary labels")
+
+    return df
 
 def standardize_formatting(df):
   # ensure query text is string type
