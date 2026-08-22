@@ -11,7 +11,7 @@ def build_vectorizer():
         max_features=config.TFIDF_MAX_FEATURES,
         token_pattern=config.TFIDF_TOKEN_PATTERN,
         ngram_range=config.TFIDF_NGRAM_RANGE,
-        lowercase=True,
+        lowercase=False,
     )
 
 
