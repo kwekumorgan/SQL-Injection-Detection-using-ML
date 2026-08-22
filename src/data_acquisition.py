@@ -88,22 +88,27 @@ def load_data_sheet_1():
 
 
 
-# Split SQLiV3 into clean queries for training and obfuscated queries for test evaluation.
+#Split the merged dataset into queries containing native
+# obfuscation indicators and queries without those indicators.
 def separate_native_obfuscation(df, text_col="Query"):
     
-    # Detect natively obfuscated rows using regex
+   # Detect native obfuscation indicators using the patterns
     is_obfuscated = df[text_col].astype(str).str.contains(
         config.NATIVE_OBFUSCATION_PATTERN, regex=True, na=False
     )
+
+
     
     # Separate dataset based on obfuscation presence
     obfuscated_rows = df[is_obfuscated].copy().reset_index(drop=True)
     clean_rows = df[~is_obfuscated].copy().reset_index(drop=True)
 
+
     # Log extraction results
     print(f"Merged total: {len(df):,}")
     print(f"  Natively obfuscated (extracted): {len(obfuscated_rows):,}")
     print(f"  Clean (kept for baseline pool):  {len(clean_rows):,}")
+
     return clean_rows, obfuscated_rows
 
 
@@ -132,7 +137,7 @@ def build_merged_dataset():
     # 5. Log pipeline outputs
     print(f"\n--- Data Acquisition Summary ---")
     print(f"Merged total raw samples: {len(merged_raw):,}")
-    print(f"Clean baseline training pool total: {len(clean_pool):,}")
+    print(f"plain baseline training pool total: {len(clean_pool):,}")
     print(f"Obfuscated test evaluation pool total: {len(obfuscated_pool):,}")
 
     # 6. Export processed datasets to disk
