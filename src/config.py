@@ -11,19 +11,12 @@ PROCESSED_DATA_DIR = os.path.join(BASE_DIR, "data", "processed")
 MODELS_DIR= os.path.join(BASE_DIR, "models")
 METRICS_DIR = os.path.join(BASE_DIR, "metrics")
 
+#RAW DATASETS
 SQLIV3_RAW_PATH = os.path.join(RAW_DATA_DIR, "SQLiV3.csv")
-SQLIV_RAW_PATH = os.path.join(RAW_DATA_DIR, "sqli.csv")
-MALICIOUS_RAW_PATH = os.path.join(RAW_DATA_DIR, "synthetic_malicious_only.csv")
-BCCC_RAW_PATH = os.path.join(RAW_DATA_DIR, "BCCC-SFU-SQLInj-2023.csv")
-RBSQLI_RAW_PATH = os.path.join(RAW_DATA_DIR, "rbsqli_dataset.csv")
 DATA_SHEET_1_PATH = os.path.join(RAW_DATA_DIR, "data_sheet_1.csv")
-RBSQLI_CATEGORY_TARGETS = {
-    "error": 3500,
-    "time": 2300,
-    "union": 1400,
-}
 
-#interim output
+
+#INTERIM OUTPUT
 NATIVE_OBFUSCATED_PATH = os.path.join(INTERIM_DATA_DIR, "sqliv3_native_obfuscated.csv")
 MERGED_PATH = os.path.join(INTERIM_DATA_DIR, "merged_raw.csv")
 CLEANED_PATH = os.path.join(INTERIM_DATA_DIR, "cleaned.csv") 
@@ -40,52 +33,129 @@ TEST_OBFUSCATED_PATH = os.path.join(PROCESSED_DATA_DIR, "test_obfuscated.csv")
 
 # HYPERPARAMETERS
 
-RANDOM_STATE = 350
+RANDOM_STATE = 42
 TEST_SIZE = 0.2
 BCCC_SAMPLE_SIZE = 2500 # skeleton-deduplication sample, not full pool
 
 #TF-IDF: word-level with symbol tokens preserved(eg. '=', '--')
 TFIDF_MAX_FEATURES= None
-TFIDF_TOKEN_PATTERN = r"--|/\*|\*/|!=|<>|>=|<=|\|\||\w+|[^\w\s]"
-TFIDF_NGRAM_RANGE = (1,1)
+TFIDF_TOKEN_PATTERN =  (
+    r"--|/\*|\*/|!=|<>|>=|<=|\|\||\w+|"
+    r"@[a-zA-Z_0-9@]*|\[.*?\]|[^\w\s]"
+)
+
+TFIDF_NGRAM_RANGE = (1,3)
 
 
 
 
 
 
-# OBFUSCATION DETECTION PATTERNS
+# SQL INJECTION ATTACK CHARACTERISTICS
 
-HEX_PATTERN = r"0x[0-9a-fA-F]+"
+ATTACK_TYPE_PATTERNS = {
+"Tautology": (
+        r"(?i)"
+        r"(?:"
+        r"\b\d+\s*=\s*\d+\b"
+        r"|'\s*\w*\s*'\s*=\s*'\s*\w*\s*'"
+        r"|\b(?:or|and)\s+\d+\s*=\s*\d+"
+        r")"
+    ),
+
+
+    
+  "Boolean": (
+        r"(?i)"
+        r"\b(?:and|or)\b\s+"
+        r"[\w'\"()]+"
+        r"\s*(?:=|!=|<>|<|>|<=|>=|like|between)"
+    ),
+
+
+     "Union": (
+        r"(?i)"
+        r"\bunion\b"
+        r"(?:\s+all)?"
+        r"\s+\bselect\b"
+    ),
+
+
+
+    "Time": (
+        r"(?i)"
+        r"(?:"
+        r"\bsleep\s*\("
+        r"|\bbenchmark\s*\("
+        r"|\bpg_sleep\s*\("
+        r"|\bwaitfor\s+delay\b"
+        r")"
+    ),
+
+
+   "Error": (
+        r"(?i)"
+        r"(?:"
+        r"\bextractvalue\s*\("
+        r"|\bupdatexml\s*\("
+        r"|\bfloor\s*\(\s*rand"
+        r"|\butl_inaddr\b"
+        r"|\bxmltype\s*\("
+        r")"
+    ),
+
+
+
+    "Stacked": (
+        r"(?is)"
+        r";\s*"
+        r"(?:"
+        r"select"
+        r"|insert"
+        r"|update"
+        r"|delete"
+        r"|drop"
+        r"|alter"
+        r"|exec"
+        r")\b"
+    ),
+}
+
+
+#OBFUSCATION INDICATORS 
+
+
+# Hexadecimal representation
+HEX_PATTERN = r"\b0x[0-9a-fA-F]+\b"
+
+
+# URL-encoded characters
 URL_ENCODING_PATTERN = r"%[0-9a-fA-F]{2}"
-CHAR_FUNCTION_PATTERN = r"\b(?i:cha?r)\s*\(\s*\d+(?:\s*,\s*\d+)*\s*\)"
-BLOCK_COMMENT_PATTERN = r"/\*[\s\S]*?\*/"
 
-#case-insensitivity to keywords only, not whole pattern
-MIXED_CASE_PATTERN = (
-    r"\b(?=\w*[a-z])(?=\w*[A-Z])"
-    r"(?i:select|union|insert|update|delete|drop|and|or|where|from)\b"
+
+# SQL CHAR() representation
+CHAR_FUNCTION_PATTERN = (
+    r"(?i)"
+    r"\bchar\s*\(\s*"
+    r"\d+(?:\s*,\s*\d+)*"
+    r"\s*\)"
 )
 
 
-# combined pattern for the SQLiV3 separation step
+# SQL comments
+LINE_COMMENT_PATTERN = r"(?:--|#)(?:\s|$)"
+
+BLOCK_COMMENT_PATTERN = r"/\*[\s\S]*?\*/"
+
+COMMENT_PATTERN = (
+    f"(?:{LINE_COMMENT_PATTERN}|{BLOCK_COMMENT_PATTERN})"
+)
+
 NATIVE_OBFUSCATION_PATTERN = "|".join([
-    HEX_PATTERN, URL_ENCODING_PATTERN, CHAR_FUNCTION_PATTERN,
-    BLOCK_COMMENT_PATTERN, MIXED_CASE_PATTERN,
+    HEX_PATTERN,
+    URL_ENCODING_PATTERN,
+    CHAR_FUNCTION_PATTERN,
 ])
 
 
-# BCCC-specific: used only to filter BCCC down to error-based rows
-BCCC_ERROR_PATTERN = r"(?i)(extractvalue|updatexml|floor\s*\(\s*rand|utl_inaddr|xmltype)"
 
-
-# Attack type patterns used for categorization and stratification
-ATTACK_TYPE_PATTERNS = {
-    "Tautology": r"(?i)(\d+\s*=\s*\d+|'\w+'\s*=\s*'\w+'|or\s+\d+\s*=\s*\d+)",
-    "Comment": r"(--|#|/\*[\s\S]*?\*/)",
-    "Boolean": r"(?i)\b(and|or)\b\s+[\w'\"]+\s*(=|<|>|like|between)",
-    "Union": r"(?i)\bunion\b",
-    "Time": r"(?i)(sleep\s*\(|waitfor\s+delay|pg_sleep\s*\(|benchmark\s*\()",
-    "Error": r"(?i)(extractvalue|updatexml|floor\s*\(\s*rand|utl_inaddr|xmltype)",
-    "Stacked": r";.{1,}(select|insert|update|delete|drop)",
-}
