@@ -1,7 +1,4 @@
 # cleaning.py
-# Cleans the merged dataset before further processing.
-# Input: data/interim/merged_raw.csv
-# Output: data/interim/cleaned.csv
 
 import pandas as pd
 from . import config
@@ -39,6 +36,7 @@ def fix_label_encoding(df):
     print(f"Dropped {before - len(df):,} rows with non-binary labels")
 
     return df
+
 
 def standardize_formatting(df):
   # ensure query text is string type
@@ -78,7 +76,6 @@ def remove_duplicates(df):
   df = df.drop_duplicates(subset=["Query"])
   print(f"Dropped {before - len(df):,} exact duplicate rows")
   return df
-
 
 
 def clean_dataset():
