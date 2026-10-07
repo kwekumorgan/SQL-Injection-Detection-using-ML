@@ -10,11 +10,20 @@ def load_merged():
 
 
 def handle_missing_values(df):
-  # drop rows with a missing query or missing label
-  before = len(df)
-  df = df.dropna(subset=["Query", "Label"])
-  print(f"Dropped {before - len(df):,} rows with missing values")
-  return df
+    # drop rows with missing query or label, empty strings, or unparseable Excel artifacts
+    before = len(df)
+    
+    # 1. Drop NaN / null entries
+    df = df.dropna(subset=["Query", "Label"])
+    
+    # 2. Filter out corrupted Excel formula artifacts and blank strings
+    excel_artifacts = ["#NAME?", "#VALUE!", "#REF!", "#N/A", "nan", "null"]
+    df["Query"] = df["Query"].astype(str).str.strip()
+    df = df[~df["Query"].str.upper().isin(excel_artifacts)]
+    df = df[df["Query"].str.len() > 0]
+    
+    print(f"Dropped {before - len(df):,} rows with missing values or invalid artifacts")
+    return df
 
 
 def fix_label_encoding(df):
