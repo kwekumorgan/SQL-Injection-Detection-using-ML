@@ -19,7 +19,7 @@ METRICS_DIR = os.path.join(BASE_DIR, "metrics")
 # RAW DATASETS
 SQLIV3_RAW_PATH = os.path.join(RAW_DATA_DIR, "SQLiV3.csv")
 DATA_SHEET_1_PATH = os.path.join(RAW_DATA_DIR, "data_sheet_1.csv")
-BCCC_RAW_PATH = os.path.join(RAW_DATA_DIR, "BCCC-SFU-SQLInj-2023.csv")
+
 
 # INTERIM OUTPUT
 NATIVE_OBFUSCATED_PATH = os.path.join(INTERIM_DATA_DIR, "sqliv3_native_obfuscated.csv")
