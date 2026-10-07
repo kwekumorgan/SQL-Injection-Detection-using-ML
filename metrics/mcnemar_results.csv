@@ -1,0 +1,5 @@
+model,b_baseline_better,c_chi2_better,discordant_pairs,mcnemar_statistic,p_value,alpha,significant,method
+nb,1,3,4,,0.625,0.01,False,Exact binomial test
+svm,2,4,6,,0.6875,0.01,False,Exact binomial test
+lr,3,2,5,,1.0,0.01,False,Exact binomial test
+dt,4,5,9,,1.0,0.01,False,Exact binomial test

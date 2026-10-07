@@ -1,0 +1,9 @@
+model,condition,b_correct_clean_wrong_obf,c_wrong_clean_correct_obf,statistic,p_value,significant_at_0.01
+nb,baseline,30,22,0.9423076923076923,0.3316850680568626,False
+nb,chi2,30,21,1.2549019607843137,0.2626182904425206,False
+svm,baseline,9,7,,0.803619384765625,False
+svm,chi2,8,7,,1.0,False
+lr,baseline,477,4,463.16839916839916,0.0,True
+lr,chi2,509,4,495.1578947368421,0.0,True
+dt,baseline,39,15,9.796296296296296,0.0017486370049757394,True
+dt,chi2,41,13,13.5,0.00023856345402872847,True
