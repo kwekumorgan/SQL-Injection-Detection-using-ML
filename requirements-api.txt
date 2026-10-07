@@ -1,0 +1,9 @@
+# Runtime dependencies for the FastAPI inference service.
+# Keep scikit-learn/numpy/scipy compatible with the saved model artifacts.
+fastapi==0.142.2
+joblib==1.5.3
+numpy==2.4.4
+pydantic==2.13.5
+scikit-learn==1.9.0
+scipy==1.17.1
+uvicorn==0.54.0

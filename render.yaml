@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sqli-detection-api
+    runtime: docker
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: SQLI_MODEL
+        value: lr_chi2
+      - key: MODELS_DIR
+        value: /app/models

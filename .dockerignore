@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+__pycache__
+*.py[cod]
+.env
+.env.*
+!.env.example
+
+# The runtime image needs only app/ and the trained model artifacts.
+data/
+docs/
+metrics/
+notebooks/
+results/
+src/
+tests/
